@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "ambient-courage-121103",
+  "private_key_id": "4737d547188e9369b88c868592d9dc000b98b3ca",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC6um6lHOhNuTSK\nJL6ag/h1MFO0k9eWHLZnv9MSvrz+5TXZhEL97KwxxevlaLn3WePfpmmZUiic0g51\n3ryJeK1IcU6epHOsY0GbQopgpUiFxDb7hEGv30Ktq49fchzbrHDz4HlbDP3LDWv5\nZJvm5tTg+Zeyjyw05LBUlGcJU1WJ2LemwORlZeSTyJrdJMYm0eCsXn4cEiTz74f2\n/kqzPZc0K4i4JRWDQkmecL7LWKpSxuhvr2/2Y357AAzBq0lBDNNqRGZBHUmKYIq8\nz6nY/ZNrLx6cX82DaFc6EW+kFPmi161MAmaFXamSOBEWobhEWOX1V1AcmjZpT3Mn\nxqRdSxjpAgMBAAECggEACM8cQqpVNDt5RM4cdtYkfcTQoht6Z3DF0ymrx73bVSwT\niQYyEeAdNIDpkspIwahKNYYYg7zqQRGw0HM4UkTw6dK8moPYGCkbkntGY25QuEzM\nKjvwTF98Ogy2qBJOVbeyIXM0zmyTuYVR03NhXniD0PQ9aZVTCNDEF81jef9mMOlF\nhyPa6GNW6dVqd1yU42KVFsk5PZWLGbp0upwS5K9+SU0wyAsmFAJtB0d9K0wSUNrV\ntK7IeJZGYNFgQ4O84+/qaHktu7GJ/ktgWXycIN3WFlqfnTTvAKqSsNpG8TFZV8Ds\nooef6QGJ+OwUVhnxEOc6bvN6KAzuDttKIcgpj/k/nQKBgQDhhDrTCqh7Zlm5C394\nGdYGtRajKeA/7ZPksKhW60GVoNnVGl1DC6SBZfRNwy7RSdIOK4VrPbfRwMGmm3xw\nVbD+iXX6Jh+X9X7ZHbk6NUHEpnttY0qlk3RKUOOGrc+dT/fS9wHI//W2w6HnnRqz\niIIyqUxPmHr2itxErL50CNE1nQKBgQDT9/lCvu3oQz6gLRhwj5A7o/+WprLCVFTE\n0w07Zz2mI4Tdo5+x6dG8kfN+Mbr3x+yrxaUmyLawrG+zREKlB7FWHncXbmlB5ZT8\ny54DYRTtFBczdln3jXSMeNIu+QVKWPAshA2kB+eWh0pl/L516jQdCi6jkdbUvfvd\nw6+qrYtUvQKBgB4Xj+XjUTIOKUDI6Px0rht9BIVHLDY7lHV6oSvf/oNh0E9gUjuF\nDTF7EktiFRg2OoJLimUR+jpR90UtEEDJHnIIk6aKecLELmX4UmQTATClamjhS++m\nKmlUO9gXz1FVf2M2NJXGmdoGZs9KJmr4dy8daiJg3V+SjevYBR3ko039AoGBAMI3\n9xM6QGDNpIc9aqRQVtbe2KSgDzDR9m3196zTVwBwkSBH+V4aIQwIKzQYuvioHeny\nCfX0eLh+90YpqGrwFoQTHAnDJ/yyMIZEx37PKE5mVy/XJG4YFY9UcTmLAFb0EPSo\n9pqyh3c8dWXnZFhEhQWKu9syGMcLYMj8sWvQ4dZ9AoGAMVqeNgRSXxcC6Wx1eDhZ\nNtyWsB4ihVm/uoizgi4oM9xBOqQDxjo4w0KS19lXqEd1w1KTiVH6Wwn4HiZtX+d3\ngayyb3eiXe+x/PtBkUaFsN9meZcO/UGrPGfwAIaD6OpKn2+L2uEh1LgW+aBFEQPA\nBRJJsDgk5dLukksCLWikvJw=\n-----END PRIVATE KEY-----\n",
+  "client_email": "gsheet@ambient-courage-121103.iam.gserviceaccount.com",
+  "client_id": "113697827204940178463",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gsheet%40ambient-courage-121103.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
