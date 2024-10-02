@@ -6,7 +6,7 @@ import os
 import pandas as pd
 import ast
 
-SERVICE_ACCOUNT_FILE = 'G:\내 드라이브\sns\srt-bin\.ssgsheetAccount.json'        
+SERVICE_ACCOUNT_FILE = 'gsheetAccount.json'        
 platform = {
     'baemin': '1iy2KQgdmbzjZ5Uz-ysjQF4s5B94nO_ql9BJ9QUVu4MU',
     'coupang': '1G-HTMj0qzkoFA-fAMvW4fUYjhpZgg5CfeDOWcYyvOKo',
