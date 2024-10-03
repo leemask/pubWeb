@@ -2,17 +2,17 @@ import streamlit as st
 from datetime import datetime, timedelta
 import threading
 import time
-from gSheetComm import gSheetComm
-
+#from gSheetComm import gSheetComm
+from dbms import *
 status_messages = {'logout': "로그인 먼저 해주세요", 'login_fail': "로그인 실패", 'login_ok': "로그인성공"}
-sheet_name_list=['baemin','coupang','yogi']
-
-# Initialize session state variables
-if 'gsheet_instance' not in st.session_state:
-    st.session_state['gsheet_instance'] = gSheetComm('baemin')
+platform_list=['baemin','coupang','yogi']
 
 if 'log_messages' not in st.session_state:
     st.session_state['log_messages'] = []
+if 'db_init' not in st.session_state:
+    db_init()
+    st.session_state['db_init'] = []
+
 # 상태 변수 설정
 if "show_settings" not in st.session_state:
     st.session_state.show_settings = False
@@ -25,8 +25,6 @@ if 'account' not in st.session_state:
 if 'status' not in st.session_state:
     st.session_state['status'] = 'logout'
 
-# Access the class instance from session state
-gsheet = st.session_state['gsheet_instance']
 log_msg = st.session_state['log_messages']
 
 # Function to add log messages safely
@@ -43,21 +41,21 @@ def show_settings():
     st.session_state.show_settings = True
 
 def login_handler(id, password):
-    values = gsheet.get_content_fun('account!A:B')
-    print(values)
+    
     val = [id,password]
     print(val)
-    if val in values:
+    if loginCheck(id, password):
         print("id found")
         st.session_state['account'] = val
         #get setting
-        for i in range(3):
-            settings = gsheet.get_content_fun(f'{sheet_name_list[i]}!A:C')
-            for setting in settings:
-                if setting[0] == id :
-                    print(setting)
-                    st.session_state['setting'] = setting[1:]
-                    break
+        settings = get_settings(id)
+        values = []
+        for setting in settings:
+            print(setting)
+            values.append([setting['id'], setting['password']])   
+            
+        st.session_state['setting'] = values
+        print(values)
         return True
     else:
         print("id not found")
@@ -67,31 +65,21 @@ def save_settings():
     st.session_state.show_settings = False
     val = st.session_state.setting
     
-    
+    values = []
     for i in range(3):
         if(len(val[i][0]) == 0 or len(val[i][1]) == 0):
             print("no data")
             continue
         #get row number
         account = st.session_state.account
-        site_ids = gsheet.get_content_fun(f'{sheet_name_list[i]}!A:A') #remove header
-        
-        val[i].append(0) #가게번호 0로 초기화
-        print(site_ids)
-        param = account+val[i] 
-        account_index = -1
-        for idx, site_id in enumerate(site_ids):
-            if site_id[0] == account[0] :
-                account_index = idx+1   # Google Sheets are 1-indexed
-                break
-        if account_index == -1:            
-            gsheet.append_row (param,sheet_name_list[i])    
-        else: #update
-            gsheet.update_sheet(sheet_name_list[i], account_index, [param])
-            print("update")
+        val[i] = [ account[0], platform_list[i]] +  val[i] + ["",""] #가게번호 ""로 초기화       
+        values.append(val[i])
+    print(values) 
+    update_setttings(values)    
+    st.session_state.setting = [value[2:] for value in values]
         
     print("save_settings")
-    st.session_state.comments = ["서버에서 새로운 라인을 추가 중..."]
+
 def cancel_settings():
     st.session_state.show_settings = False
 
@@ -117,6 +105,7 @@ with col2:
             if st.button("로그아웃") :
                 st.session_state['account'] = []
                 st.session_state['status'] = 'logout'
+                st.session_state.show_settings = False
                 st.rerun()
         else :            
             if st.session_state['status'] == 'login_fail':
@@ -150,7 +139,7 @@ with st.container():
 
         if button_show and st.button("댓글 시작"):            
             while st.session_state['status_running'] :
-                val = gsheet.get_content_fun()
+                
                 #print(val)  # This is just for debugging purposes
                 if(val == None):
                     continue
@@ -164,7 +153,7 @@ with st.container():
         if button_show and st.button("댓글 중지"):  
             while not st.session_state['sleep_state']:
                 time.sleep(0.2)
-            gsheet.stop_fun()
+            
             add_log_message("Stopped")
             st.session_state['status_running'] = False
             st.stop()
@@ -180,6 +169,10 @@ with st.container():
         if st.session_state.show_settings:
             with settings_container.container():
                 st.write("### 배달앱 설정")
+                values = st.session_state['setting']
+                print("--", values)
+                if(len(values) == 0):
+                    values = [["",""],["",""],["",""]]
                
                 rows = 3
                 cols = 3
@@ -194,10 +187,11 @@ with st.container():
                         if col == 0 :
                             cols_container[col].write(f"#### {platforms[row]}")
                         else :
-                            cols_input.append(cols_container[col].text_input(f"{titles[col-1]}", key=f"{row}_{col}"))
+                            cols_input.append(cols_container[col].text_input(f"{titles[col-1]}", key=f"{row}_{col}", value=values[row][col-1]))
                     grid.append(cols_input)
+                print(grid)
                 st.session_state.setting = grid
-                st.session_state.account = ["cafe_1"]
+                #st.session_state.account = ["cafe_1"]
                 # Button to trigger the display of values
 
                 st.button("설정 완료", on_click=save_settings)
