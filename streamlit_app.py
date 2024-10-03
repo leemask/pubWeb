@@ -88,7 +88,7 @@ col1, col2 = st.columns([2, 8])  # col1 width: 20%, col2 width: 80%
 
 # Row 0 - Column 0: 이미지 배치
 with col1:
-    st.image("https://via.placeholder.com/150", caption="AI가 대신 고객 리뷰에 답글을 달아줍니다", use_column_width=True)
+    st.write("AI가 대신 고객 리뷰에 답글을 달아줍니다.")
 
 # Row 0 - Column 1: 로그인 폼
 with col2:
