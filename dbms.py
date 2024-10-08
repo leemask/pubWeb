@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 import pandas as pd
-from define import MAX_POSTS
 from telegramT import *
+MAX_POSTS = 100
+MAX_POSTS_PER_DAY = 20
 
 class dbms:
     def __init__(self):
