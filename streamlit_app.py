@@ -13,7 +13,8 @@ platform_list=['baemin','coupang','yogi']
 if 'log_messages' not in st.session_state:
     st.session_state['log_messages'] = "", None
 if 'db_init' not in st.session_state:
-    st.session_state['dbms'] =dbms()
+    st.session_state['dbms'] =dbms() 
+    
 
 # 상태 변수 설정
 if "show_settings" not in st.session_state:
