@@ -11,7 +11,7 @@ status_messages = {'logout': "로그인 먼저 해주세요", 'login_fail': "로
 platform_list=['baemin','coupang','yogi']
 
 if 'log_messages' not in st.session_state:
-    st.session_state['log_messages'] = None
+    st.session_state['log_messages'] = "", None
 if 'db_init' not in st.session_state:
     st.session_state['dbms'] =dbms()
 
@@ -21,19 +21,21 @@ if "show_settings" not in st.session_state:
 if 'status_running' not in st.session_state:
     st.session_state['status_running'] = False
 if 'setting' not in st.session_state:
-    st.session_state['setting'] = []
+    st.session_state['setting'] = [], False, False
 if 'account' not in st.session_state:
     st.session_state['account'] = []
 if 'status' not in st.session_state:
     st.session_state['status'] = 'logout'
 
-log_msg = st.session_state['log_messages']
+total_posts, df_msg = st.session_state['log_messages']
 dbms = st.session_state['dbms']
+setting_values, system_enabled, user_enabled = st.session_state['setting']
+account = st.session_state['account']
 
 # Function to add log messages safely
 def add_log_message(message, clear = False):
     if(clear):
-        st.session_state['log_messages'] = []    
+        st.session_state['log_messages'] = "", None    
     comment_area.text(message)
 
 # 배달앱 설정을 클릭했을 때 호출되는 함수
@@ -51,13 +53,13 @@ def login_handler(id, password):
         print("id found")
         st.session_state['account'] = val
         #get setting
-        settings = dbms.get_settings(id)
+        settings, system_enabled, user_enabled = dbms.get_settings(id)
         values = []
         for setting in settings:
             print(setting)
             values.append([setting['id'], setting['password']])   
             
-        st.session_state['setting'] = values
+        st.session_state['setting'] = values, system_enabled, user_enabled
         print(values)
         return True
     else:
@@ -66,7 +68,7 @@ def login_handler(id, password):
 # 설정 완료 버튼을 클릭했을 때 호출되는 함수
 def save_settings():
     st.session_state.show_settings = False
-    val = st.session_state.setting
+    val, system_enabled,user_enabled = st.session_state.setting
     
     values = []
     for i in range(3): #비어있어도 3개 입력, 나중에 수정하거나 지울 수 있을때를 대비해서 
@@ -75,7 +77,7 @@ def save_settings():
         values.append(val[i])
     print(values) 
     dbms.update_setttings(values)    
-    st.session_state.setting = [value[2:] for value in values]
+    #st.session_state.setting = [value[2:] for value in values], system_enabled, user_enabled
         
     print("save_settings")
 
@@ -87,7 +89,7 @@ col1, col2 = st.columns([2, 8])  # col1 width: 20%, col2 width: 80%
 
 # Row 0 - Column 0: 이미지 배치
 with col1:
-    st.image("aicafe.PNG", caption="❤️ AI가 고객리뷰에 답글을 달아줍니다 ", use_column_width=True)
+    st.image("aicafe.png", caption="❤️ AI가 고객리뷰에 답글을 달아줍니다 ", use_column_width=True)
 
 # Row 0 - Column 1: 로그인 폼
 with col2:
@@ -104,8 +106,8 @@ with col2:
             if st.button("로그아웃") :
                 st.session_state['account'] = []
                 st.session_state['status'] = 'logout'
-                st.session_state['setting'] = []
-                st.session_state['log_messages'] = None
+                st.session_state['setting'] = [], False, False
+                st.session_state['log_messages'] = "", None
                 st.session_state.show_settings = False
                 st.rerun()
         else :            
@@ -134,29 +136,37 @@ with st.container():
         st.write("### 기능")
         st.button("배달앱 설정", on_click=show_settings)
         # Buttons for start and stop
-        button_show = True
-        if st.session_state['status'] != 'login_ok':
+        
+        if st.session_state['status'] != 'login_ok' or st.session_state.show_settings:
             button_show = False            
-
+        else:
+            button_show = True
+            
         if button_show and st.button("댓글 보기"):    
             account = st.session_state['account']
-            df = dbms.get_gptPosts(account[0])   
-            if(df.empty):
+            df, total = dbms.get_gptPosts(account[0]) 
+            st.write("here")  
+            if(total == 0):
                 st.write("데이터가 없습니다.")
             else:
-                st.write(f"댓글 : {df.shape[0]}개")
-                st.session_state['log_messages'] = df
+                st.session_state['log_messages'] = total, df
                 #AgGrid(df, height=400, fit_columns_on_grid_load=True)
             st.rerun()
                 
-        if button_show and st.button("댓글 중지"):  
-            while not st.session_state['sleep_state']:
-                time.sleep(0.2)
-            
-            add_log_message("Stopped")
-            st.session_state['status_running'] = False
-            st.stop()
-
+        if button_show :
+            if user_enabled :
+                if st.button("댓글 중지"):  
+                # update dbms
+                    dbms.update_user_enabled(account[0], False)
+                    st.session_state['setting'] = setting_values, system_enabled, False
+                    
+                    st.rerun()
+            else :
+                if st.button("댓글 시작"):  
+                    # update dbms
+                    dbms.update_user_enabled(account[0], True)
+                    st.session_state['setting'] = setting_values, system_enabled, True
+                    st.rerun()
 
     # Row 1 - Column 1: 배달앱 설정 or 실시간 댓글 표시
     with col2:
@@ -165,7 +175,8 @@ with st.container():
         if st.session_state.show_settings:
             with settings_container.container():
                 st.write("### 배달앱 설정")
-                values = st.session_state['setting']
+                #values = st.session_state['setting']
+                values = setting_values
                 print("--", values)
                 for ind in range (3-len(values)):
                     values.append(["",""])
@@ -188,7 +199,7 @@ with st.container():
                             cols_input.append(cols_container[col].text_input(f"{titles[col-1]}", key=f"{row}_{col}", value=values[row][col-1]))
                     grid.append(cols_input)
                 print(grid)
-                st.session_state.setting = grid
+                st.session_state.setting = grid, system_enabled, user_enabled
                 #st.session_state.account = ["cafe_1"]
                 # Button to trigger the display of values
 
@@ -198,11 +209,19 @@ with st.container():
                     # 실시간 댓글 영역
             comment_area = st.empty()
             comment_area.empty()  # 실시간 댓글 영역 비움
-            st.write("### 댓글 결과")
-            df = st.session_state['log_messages']
-            if df is not None and not df.empty:
+            st.write("### 댓글 결과")            
+            
+            if df_msg is not None and not df_msg.empty:
                 #AgGrid(df, height=400, fit_columns_on_grid_load=True)
-                for index, row in df.iterrows():
+                info_msg = ""
+                if(system_enabled==False): 
+                    info_msg = ("시스템에서 댓글을 중지하였습니다. \n")    
+                if(user_enabled==False):
+                    info_msg = ("사용자가 댓글을 중지하였습니다. \n")
+                info_msg += f"총 댓글수 : {total_posts}개"
+                st.write(info_msg)
+
+                for index, row in df_msg.iterrows():
                     row['reply'] = '\n ===> '+ row['reply']
                     st.write(f"{index + 1}. {','.join(map(str, row.values))}")
             

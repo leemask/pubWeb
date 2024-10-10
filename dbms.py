@@ -98,16 +98,23 @@ class dbms:
         seven_days_ago = datetime.now() - timedelta(days=7)
         #query = {"site_id": id, "date": {"$gte": seven_days_ago}}        
         query = {"site_id": id}        
-        result = self.gptPosts.find(query).sort("date", -1)
+        total = self.gptPosts.count_documents(query)
+        print(f"Number of documents matching the query: {total}")
+        if(total == 0) :
+            return None,total
+            
+        result = self.gptPosts.find(query).sort("date", -1).limit(20)
         print(f"Reading data: {result}")   
 
         df = pd.DataFrame(list(result))
         if(df.empty):
             print("No data found")
             return df
-        df = df.drop(columns=['_id','site_id','shop_id']) 
-        print(df)   
-        return df
+        df = df.drop(columns=['_id','site_id','shop_id'])
+        df['date'] = df['date'].dt.strftime('%Y-%m-%d %H:%M') 
+
+        #print(df)   
+        return df,total
     
     def get_customers(self, platform):
         #{"site_id": setting[0], "platform": setting[1], "id": setting[2], "password": setting[3], "shop_id": setting[4], "shop_name": setting[5]}
@@ -183,19 +190,36 @@ class dbms:
         for setting in settings:
             self.add_customer(setting)
         print("Settings updated")
-
+    
+    def update_user_enabled(self,site_id, user_enabled):
+        # 4. 데이터 수정
+        # Update the phone number of the record with the given id
+        query = {"id": site_id}
+        new_values = {"$set": {"user_run": user_enabled}}
+        result = self.account.update_one(query, new_values)
+        print(f"User run updated {result}    {site_id} {user_enabled}")
+        
     def get_settings(self,id):
-        # 4. 데이터 조회 (조건부)
-        # Find a record with the given id
-        query = {"site_id": id}
-        result = list(self.customers.find(query))
-        print(result)
-        if result:
-            print(f"Settings found: {result}")
-            return result
-        else:
-            print("Settings not found")
-            return []
+        #web only
+        result = []
+        user_enabled = False
+        system_enabled = False  
+        try :
+            query = {"site_id": id}
+            result = list(self.customers.find(query))
+            print(result)
+            account = self.account.find_one({"id":id}) 
+            user_enabled = account.get("user_run", False)
+            system_enabled = account.get("system_permission", False)
+            print(f"User enabled: {user_enabled}, System enabled: {system_enabled}")
+            if result:
+                print(f"Settings found: {result}")                
+            else:
+                print("Settings not found")
+
+        except Exception as e:
+            print(f"DB ERROR get_settings: {e}")
+        return result,system_enabled, user_enabled
 
     def display_all(self,table):
         # 4. 데이터 조회 (전체)
