@@ -13,8 +13,7 @@ platform_list=['baemin','coupang','yogi']
 if 'log_messages' not in st.session_state:
     st.session_state['log_messages'] = "", None
 if 'db_init' not in st.session_state:
-    st.session_state['dbms'] =dbms() 
-    
+    st.session_state['dbms'] =dbms()
 
 # 상태 변수 설정
 if "show_settings" not in st.session_state:
@@ -55,13 +54,15 @@ def login_handler(id, password):
         st.session_state['account'] = val
         #get setting
         settings, system_enabled, user_enabled = dbms.get_settings(id)
-        values = []
-        for setting in settings:
-            print(setting)
-            values.append([setting['id'], setting['password']])   
+        values = [] #three platforms
+        for p in platform_list:                
+            for setting in settings:
+                setting['platform'] = setting['platform'].lower()
+                if setting['platform'] == p: #sequence is important
+                    values.append([setting['id'], setting['password']])   
             
         st.session_state['setting'] = values, system_enabled, user_enabled
-        print(values)
+        print("--login ",values)
         return True
     else:
         print("id not found")
@@ -78,7 +79,7 @@ def save_settings():
         values.append(val[i])
     print(values) 
     dbms.update_setttings(values)    
-    #st.session_state.setting = [value[2:] for value in values], system_enabled, user_enabled
+    st.session_state.setting = [value[2:] for value in values], system_enabled, user_enabled
         
     print("save_settings")
 
@@ -90,7 +91,7 @@ col1, col2 = st.columns([2, 8])  # col1 width: 20%, col2 width: 80%
 
 # Row 0 - Column 0: 이미지 배치
 with col1:
-    st.image("aicafe.PNG", caption="AI가 고객리뷰에 답글을 달아줍니다 ", use_column_width=True)
+    st.image("aicafe.PNG", caption="❤️ AI가 고객리뷰에 답글을 달아줍니다 ", use_column_width=True)
 
 # Row 0 - Column 1: 로그인 폼
 with col2:

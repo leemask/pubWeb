@@ -4,6 +4,7 @@ import pandas as pd
 from telegramT import *
 MAX_POSTS = 100
 MAX_POSTS_PER_DAY = 20
+DELAY_ONE_LOOP = 10 #miniutes
 
 class dbms:
     def __init__(self):
